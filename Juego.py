@@ -22,14 +22,15 @@ def menu():
 
         opcion = int(input("Elige una opción: "))
 
-        if opcion == "1":
+        if opcion == 1:
             Funciones.solitario()
-        elif opcion == "2":
+        elif opcion == 2:
             Funciones.pareja()
-        elif opcion == "3":
-            Funciones.estadísticas()
-        elif opcion == "4":
+        elif opcion == 3:
+            Funciones.estadisticas()
+        elif opcion == 4:
             print("\n👋 ¡Gracias por jugar!")
             break
         else:
             print("❌ Opción inválida, intenta de nuevo.")
+menu()
