@@ -80,8 +80,7 @@ def pedir_nivel_pareja(nombre_1,nombre_2):
             print("❌ Opción inválida, intentadlo de nuevo.")
     return numero_intentos,dificultad
 def resultado_jugadores_solitario(nombre,dificultad, encierto):
-    archivo = "Resultados de adivina el número.xlsx"
-
+    archivo = "Resultados de adivina el número.xlsx"
     wb = load_workbook(archivo)
     ws = wb["Resultado jugadores"]
     fila=0
@@ -102,14 +101,10 @@ def resultado_jugadores_solitario(nombre,dificultad, encierto):
             ws.cell(row=fila, column=2).value += 1
         if encierto:
             ws.cell(row=fila, column=7).value += 1
-        if not encierto:
-            ws.cell(row=fila, column=8).value += 1
-        num = (ws.cell(row=fila, column=7).value + ws.cell(row=fila, column=8).value)
-        den = (ws.cell(row=fila, column=5).value + ws.cell(row=fila, column=6).value)
+        num = ws.cell(row=fila, column=7).value 
+        den = ws.cell(row=fila, column=5).value
 
         ws.cell(row=fila, column=9).value = num / den
-        valor_col9 = ws.cell(row=fila, column=9).value   # columna H
-        ws.cell(row=fila, column=10).value = 1 - valor_col9
     else:
         if dificultad == 1 and encierto:
             nueva_fila = [nombre, 0, 0, 1, 1, 0, 1, 0, 1,0]
@@ -124,8 +119,136 @@ def resultado_jugadores_solitario(nombre,dificultad, encierto):
         elif dificultad == 3 and not encierto:
             nueva_fila = [nombre, 1, 0, 0, 1, 0, 0, 0, 0,0]
         ws.append(nueva_fila)
-        ws.cell(row=fila, column=9).number_format = "0.00%"
-        ws.cell(row=fila, column=10).number_format = "0.00%"  
+    ws.cell(row=fila, column=9).number_format = "0.00%"
+    ws.cell(row=fila, column=10).number_format = "0.00%"  
+    wb.save(archivo)
+
+#Definimos una función para que nos escriba los resultados de los jugadores después de una partida en parejas.
+def resultado_jugadores_pareja(nombre_1,nombre_2,dificultad, encierto_1, encierto_2):
+    archivo = "Resultados de adivina el número.xlsx"
+    wb = load_workbook(archivo)
+    ws = wb["Resultado jugadores"]
+    fila_1 = 0
+    fila_2 = 0
+    nombre_encontrado_1 = False
+    nombre_encontrado_2 = False
+
+    for celda in ws["A"]:
+        fila_1 += 1 
+        if celda.value == nombre_1:
+            nombre_encontrado_1 = True
+            break
+    for celda in ws["A"]:
+        fila_2 += 1 
+        if celda.value == nombre_2:
+            nombre_encontrado_2 = True
+            break
+    if nombre_encontrado_1 and nombre_encontrado_2:
+        for fila in [fila_1,fila_2]:
+            ws.cell(row=fila, column=6).value += 1
+            if dificultad == 1:
+                ws.cell(row=fila, column=4).value += 1
+            elif dificultad == 2:
+                ws.cell(row=fila, column=3).value += 1        
+            elif dificultad == 3:
+                ws.cell(row=fila, column=2).value += 1
+            if encierto_1 and fila == fila_1:
+                ws.cell(row=fila, column=8).value += 1
+            if encierto_2 and fila == fila_2:
+                ws.cell(row=fila, column=8).value += 1
+            num = ws.cell(row=fila, column=8).value
+            den = ws.cell(row=fila, column=6).value
+            ws.cell(row=fila, column=10).value = num / den
+            
+    elif (nombre_encontrado_1 and not nombre_encontrado_2) or (nombre_encontrado_2 and not nombre_encontrado_1):
+        if nombre_encontrado_1:
+            ws.cell(row=fila_1, column=6).value += 1
+            if dificultad == 1:
+                ws.cell(row=fila_1, column=4).value += 1
+            elif dificultad == 2:
+                ws.cell(row=fila_1, column=3).value += 1        
+            elif dificultad == 3:
+                ws.cell(row=fila_1, column=2).value += 1
+            if encierto_1:
+                ws.cell(row=fila_1, column=8).value += 1
+            num = ws.cell(row=fila_1, column=8).value
+            den = ws.cell(row=fila_1, column=6).value
+            ws.cell(row=fila_1, column=10).value = num / den
+            if dificultad == 1 and encierto_2:
+                nueva_fila = [nombre_2, 0, 0, 1, 1, 0, 1, 0, 1,0]
+            if dificultad == 1 and not encierto_2:
+                nueva_fila = [nombre_2, 0, 0, 1, 1, 0, 0, 0, 0,0]
+            elif dificultad == 2 and encierto_2:
+                nueva_fila = [nombre_2, 0, 1, 0, 1, 0, 1, 0, 1,0]
+            elif dificultad == 2 and not encierto_2:
+                nueva_fila = [nombre_2, 0, 1, 0, 1, 0, 0, 0, 0,0]
+            elif dificultad == 3 and encierto_2:
+                nueva_fila = [nombre_2, 1, 0, 0, 1, 0, 1, 0, 1,0]
+            elif dificultad == 3 and not encierto_2:
+                nueva_fila = [nombre_2, 1, 0, 0, 1, 0, 0, 0, 0,0]
+            ws.append(nueva_fila)
+        else:
+            ws.cell(row=fila_2, column=6).value += 1
+            if dificultad == 1:
+                ws.cell(row=fila_2, column=4).value += 1
+            elif dificultad == 2:
+                ws.cell(row=fila_2, column=3).value += 1        
+            elif dificultad == 3:
+                ws.cell(row=fila_2, column=2).value += 1
+            if encierto_2:
+                ws.cell(row=fila_2, column=8).value += 1
+            num = ws.cell(row=fila_2, column=8).value
+            den = ws.cell(row=fila_2, column=6).value
+            ws.cell(row=fila_2, column=10).value = num / den 
+            if dificultad == 1 and encierto_1:
+                nueva_fila = [nombre_2, 0, 0, 1, 1, 0, 1, 0, 1,0]
+            if dificultad == 1 and not encierto_1:
+                nueva_fila = [nombre_2, 0, 0, 1, 1, 0, 0, 0, 0,0]
+            elif dificultad == 2 and encierto_1:
+                nueva_fila = [nombre_2, 0, 1, 0, 1, 0, 1, 0, 1,0]
+            elif dificultad == 2 and not encierto_1:
+                nueva_fila = [nombre_2, 0, 1, 0, 1, 0, 0, 0, 0,0]
+            elif dificultad == 3 and encierto_1:
+                nueva_fila = [nombre_2, 1, 0, 0, 1, 0, 1, 0, 1,0]
+            elif dificultad == 3 and not encierto_1:
+                nueva_fila = [nombre_2, 1, 0, 0, 1, 0, 0, 0, 0,0]
+            ws.append(nueva_fila)
+    else:
+        if dificultad == 1 and encierto_1:
+            nueva_fila = [nombre_2, 0, 0, 1, 1, 0, 1, 0, 1,0]
+        if dificultad == 1 and not encierto_1:
+            nueva_fila = [nombre_2, 0, 0, 1, 1, 0, 0, 0, 0,0]
+        elif dificultad == 2 and encierto_1:
+            nueva_fila = [nombre_2, 0, 1, 0, 1, 0, 1, 0, 1,0]
+        elif dificultad == 2 and not encierto_1:
+            nueva_fila = [nombre_2, 0, 1, 0, 1, 0, 0, 0, 0,0]
+        elif dificultad == 3 and encierto_1:
+            nueva_fila = [nombre_2, 1, 0, 0, 1, 0, 1, 0, 1,0]
+        elif dificultad == 3 and not encierto_1:
+            nueva_fila = [nombre_2, 1, 0, 0, 1, 0, 0, 0, 0,0]
+        ws.append(nueva_fila)
+        if dificultad == 1 and encierto_2:
+            nueva_fila = [nombre_2, 0, 0, 1, 1, 0, 1, 0, 1,0]
+        if dificultad == 1 and not encierto_2:
+            nueva_fila = [nombre_2, 0, 0, 1, 1, 0, 0, 0, 0,0]
+        elif dificultad == 2 and encierto_2:
+            nueva_fila = [nombre_2, 0, 1, 0, 1, 0, 1, 0, 1,0]
+        elif dificultad == 2 and not encierto_2:
+            nueva_fila = [nombre_2, 0, 1, 0, 1, 0, 0, 0, 0,0]
+        elif dificultad == 3 and encierto_2:
+            nueva_fila = [nombre_2, 1, 0, 0, 1, 0, 1, 0, 1,0]
+        elif dificultad == 3 and not encierto_2:
+            nueva_fila = [nombre_2, 1, 0, 0, 1, 0, 0, 0, 0,0]
+        ws.append(nueva_fila)
+    ws.cell(row=fila_1, column=9).number_format = "0.00%"
+    ws.cell(row=fila_1, column=10).number_format = "0.00%"  
+    ws.cell(row=fila_2, column=9).number_format = "0.00%"
+    ws.cell(row=fila_2, column=10).number_format = "0.00%" 
+    wb.save(archivo)
+
+
+
+
 def solitario():
     path='Resultados de adivina el número.xlsx'
     nombre = pedir_nombre_solitario()
@@ -145,11 +268,11 @@ def solitario():
             print(f'Has acertado en tu intento {i+1}! El número secreto era {numero_elegido}!')
         if intento<numero_elegido:
             os.system("afplay 'mixkit-wrong-answer-bass-buzzer-948.wav'")
-            print(f'El número {intento} es menor que el númerop secreto... Te quedan {numero_intentos-(i+1)} intentos!')
+            print(f'El número {intento} es menor que el número secreto... Te quedan {numero_intentos-(i+1)} intentos!')
             i += 1
         if intento>numero_elegido:
             os.system("afplay 'mixkit-wrong-answer-bass-buzzer-948.wav'")
-            print(f'El número {intento} es mayor que el númerop secreto... Te quedan {numero_intentos-(i+1)} intentos!')
+            print(f'El número {intento} es mayor que el número secreto... Te quedan {numero_intentos-(i+1)} intentos!')
             i += 1
     if encierto == False:
         print(f"Lo siento, no has adivinado el número secreto que era {numero_elegido}... Inténtalo otra vez!")
@@ -157,6 +280,7 @@ def solitario():
     nueva_fila=[nombre,niveles[dificultad],resultado[encierto],i,numero_elegido,intento]
     ws.append(nueva_fila)
     wb.save(path)
+    resultado_jugadores_solitario(nombre,dificultad, encierto)
 
 def pareja():
     path='Resultados de adivina el número.xlsx'
@@ -166,46 +290,49 @@ def pareja():
     nombre_1, nombre_2 = pedir_nombre_parejas()
     numero_intentos, dificultad = pedir_nivel_pareja(nombre_1, nombre_2)
     print(f"\n🔢 El juego empieza con {numero_intentos} intentos.")
-    encierto = False  #Esta variable nos indica que no se ha encontrado el num secreto. Si se encuentra, encierto pasara a ser True y se romperá el bucle siguiente.
+    encierto_1 = False  #Esta variable nos indica que no se ha encontrado el num secreto. Si se encuentra, encierto pasara a ser True y se romperá el bucle siguiente.
+    encierto_2 = False  
     numero_elegido = random.randint(1,1001) #Se genera un número aleatorio entre el 1 y el 1000.
     i = 0  #Es el contador.
-    while i in range(numero_intentos) and encierto == False:
+    while i in range(numero_intentos) and (not encierto_1 and not encierto_2):
         intento_1=int(getpass(f'El intento número {i+ 1} de {nombre_1} es:'))
         if intento_1 == numero_elegido:
             os.system("afplay 'success-fanfare-trumpets-6185.mp3'")
             print(f'Enhorabuena {nombre_1}! Has acertado en tu intento {i+ 1}! El número secreto era {numero_elegido}!')
             ganador=nombre_1
             perdedor=nombre_2
-            encierto = True
+            encierto_1 = True
             break
         if intento_1<numero_elegido:
             os.system("afplay 'mixkit-wrong-answer-bass-buzzer-948.wav'")
-            print(f'El número que me has dado es menor que el númerop secreto... Te quedan {numero_intentos-(i+1)} intentos!')
+            print(f'El número que me has dado es menor que el número secreto... Te quedan {numero_intentos-(i+1)} intentos!')
         if intento_1>numero_elegido:
             os.system("afplay 'mixkit-wrong-answer-bass-buzzer-948.wav'")
-            print(f'El número que me has dado es mayor que el númerop secreto... Te quedan {numero_intentos-(i+ 1)} intentos!')
+            print(f'El número que me has dado es mayor que el número secreto... Te quedan {numero_intentos-(i+ 1)} intentos!')
         intento_2=int(getpass(f'El intento número {i+1} de {nombre_2} es:'))
         if intento_2 == numero_elegido:
             os.system("afplay 'success-fanfare-trumpets-6185.mp3'")
             print(f'Enhorabuena {nombre_2}! Has acertado en tu intento {i+ 1}! El número secreto era {numero_elegido}!')
             ganador = nombre_2
             perdedor = nombre_1
-            encierto = True
+            encierto_2 = True
             break
         if intento_2<numero_elegido:
             os.system("afplay 'mixkit-wrong-answer-bass-buzzer-948.wav'")
-            print(f'El número que me has dado es menor que el númerop secreto... Te quedan {numero_intentos-(i+ 1)} intentos!')
+            print(f'El número que me has dado es menor que el número secreto... Te quedan {numero_intentos-(i+ 1)} intentos!')
             i += 1
         if intento_2>numero_elegido:
             os.system("afplay 'mixkit-wrong-answer-bass-buzzer-948.wav'")
-            print(f'El número que me has dado es mayor que el númerop secreto... Te quedan {numero_intentos-(i+ 1)} intentos!')
+            print(f'El número que me has dado es mayor que el número secreto... Te quedan {numero_intentos-(i+ 1)} intentos!')
             i += 1
-    if encierto == False:
+    if not encierto_1 and not encierto_2:
         print(f"Lo siento, no has adivinado el número secreto, que era {numero_elegido}... Inténtalo otra vez!")
+        ganador = '-'
     ws=wb['Pareja']
     nueva_fila=[nombre_1,nombre_2,ganador,i,i,numero_elegido,f'{intento_1}-{intento_2}']
     ws.append(nueva_fila)
     wb.save(path)
+    resultado_jugadores_pareja(nombre_1,nombre_2,dificultad, encierto_1, encierto_2)
 def estadisticas():
     archivo = "Resultados de adivina el número.xlsx"
 
