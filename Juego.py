@@ -13,6 +13,7 @@ print(
 "dependiendo de los diferentes modos de juego."
 )
 def menu():
+    Funciones.crear_excel()
     while True:
         print("\n--- MENÚ PRINCIPAL ---")
         print("1. Pulsa 1 si quieres jugar en modo solitario.")

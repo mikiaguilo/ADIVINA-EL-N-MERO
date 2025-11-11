@@ -122,128 +122,224 @@ def resultado_jugadores_solitario(nombre,dificultad, encierto):
     ws.cell(row=fila, column=9).number_format = "0.00%"
     ws.cell(row=fila, column=10).number_format = "0.00%"  
     wb.save(archivo)
+def crear_excel():
+    archivo = "Resultados de adivina el número.xlsx"
 
+    if os.path.exists(archivo):
+        return
+
+    # Hoja: Solitario
+    columnas_solitario = [
+        "Nombre",
+        "Dificultad",
+        "Final",
+        "Nº de intentos",
+        "Numero secreto",
+        "Último intento"
+    ]
+
+    # Hoja: Pareja
+    columnas_pareja = [
+        "Jugador 1",
+        "Jugador 2",
+        "Ganador/a",
+        "Nº de intentos Jugador 1",
+        "Nº de intentos Jugador 2",
+        "Número Secreto",
+        "Último intento"
+    ]
+
+    # Hoja: Resultado jugadores (estadísticas agregadas por jugador)
+    columnas_resultado = [
+        "Nombre",
+        "Resultados partidas modo difícil",
+        "Resultados partidas modo intermedio",
+        "Resultados partidas modo fácil",
+        "Partidas en solitario",
+        "Partidas en pareja",
+        "Victorias solitario",
+        "Victorias en pareja",
+        "Porcentaje de victorias solitario",
+        "Porcentaje de victorias pareja"
+    ]
+
+    df_solitario = pd.DataFrame(columns=columnas_solitario)
+    df_pareja = pd.DataFrame(columns=columnas_pareja)
+    df_resultado = pd.DataFrame(columns=columnas_resultado)
+
+    # Crear el Excel con las 3 hojas
+    with pd.ExcelWriter(archivo, engine="openpyxl") as writer:
+        df_solitario.to_excel(writer, sheet_name="Solitario", index=False)
+        df_pareja.to_excel(writer, sheet_name="Pareja", index=False)
+        df_resultado.to_excel(writer, sheet_name="Resultado jugadores", index=False)
 #Definimos una función para que nos escriba los resultados de los jugadores después de una partida en parejas.
 def resultado_jugadores_pareja(nombre_1,nombre_2,dificultad, encierto_1, encierto_2):
-    archivo = "Resultados de adivina el número.xlsx"
+    archivo = "Resultados de adivina el número.xlsx"
     wb = load_workbook(archivo)
     ws = wb["Resultado jugadores"]
+
     fila_1 = 0
     fila_2 = 0
     nombre_encontrado_1 = False
     nombre_encontrado_2 = False
 
+    # Buscar jugador 1
     for celda in ws["A"]:
         fila_1 += 1 
         if celda.value == nombre_1:
             nombre_encontrado_1 = True
             break
+    # Buscar jugador 2
     for celda in ws["A"]:
         fila_2 += 1 
         if celda.value == nombre_2:
             nombre_encontrado_2 = True
             break
+
+    # ---- Los dos existen ----
     if nombre_encontrado_1 and nombre_encontrado_2:
-        for fila in [fila_1,fila_2]:
-            ws.cell(row=fila, column=6).value += 1
+        for fila in [fila_1, fila_2]:
+            # F: Partidas en pareja
+            ws.cell(row=fila, column=6).value = (ws.cell(row=fila, column=6).value or 0) + 1
+            # Dificultat (B,C,D)
             if dificultad == 1:
-                ws.cell(row=fila, column=4).value += 1
+                ws.cell(row=fila, column=4).value = (ws.cell(row=fila, column=4).value or 0) + 1
             elif dificultad == 2:
-                ws.cell(row=fila, column=3).value += 1        
+                ws.cell(row=fila, column=3).value = (ws.cell(row=fila, column=3).value or 0) + 1
             elif dificultad == 3:
-                ws.cell(row=fila, column=2).value += 1
+                ws.cell(row=fila, column=2).value = (ws.cell(row=fila, column=2).value or 0) + 1
+            # H: Victorias pareja (segons el jugador)
             if encierto_1 and fila == fila_1:
-                ws.cell(row=fila, column=8).value += 1
+                ws.cell(row=fila, column=8).value = (ws.cell(row=fila, column=8).value or 0) + 1
             if encierto_2 and fila == fila_2:
-                ws.cell(row=fila, column=8).value += 1
-            num = ws.cell(row=fila, column=8).value
-            den = ws.cell(row=fila, column=6).value
-            ws.cell(row=fila, column=10).value = num / den
-            
+                ws.cell(row=fila, column=8).value = (ws.cell(row=fila, column=8).value or 0) + 1
+            # J = H/F
+            num = ws.cell(row=fila, column=8).value or 0
+            den = ws.cell(row=fila, column=6).value or 0
+            ws.cell(row=fila, column=10).value = (num / den) if den else 0
+
+    # ---- Només un existeix ----
     elif (nombre_encontrado_1 and not nombre_encontrado_2) or (nombre_encontrado_2 and not nombre_encontrado_1):
         if nombre_encontrado_1:
-            ws.cell(row=fila_1, column=6).value += 1
+            # actualiza jugador 1 existente
+            ws.cell(row=fila_1, column=6).value = (ws.cell(row=fila_1, column=6).value or 0) + 1
             if dificultad == 1:
-                ws.cell(row=fila_1, column=4).value += 1
+                ws.cell(row=fila_1, column=4).value = (ws.cell(row=fila_1, column=4).value or 0) + 1
             elif dificultad == 2:
-                ws.cell(row=fila_1, column=3).value += 1        
+                ws.cell(row=fila_1, column=3).value = (ws.cell(row=fila_1, column=3).value or 0) + 1
             elif dificultad == 3:
-                ws.cell(row=fila_1, column=2).value += 1
+                ws.cell(row=fila_1, column=2).value = (ws.cell(row=fila_1, column=2).value or 0) + 1
             if encierto_1:
-                ws.cell(row=fila_1, column=8).value += 1
-            num = ws.cell(row=fila_1, column=8).value
-            den = ws.cell(row=fila_1, column=6).value
-            ws.cell(row=fila_1, column=10).value = num / den
+                ws.cell(row=fila_1, column=8).value = (ws.cell(row=fila_1, column=8).value or 0) + 1
+            # J para jugador 1
+            num = ws.cell(row=fila_1, column=8).value or 0
+            den = ws.cell(row=fila_1, column=6).value or 0
+            ws.cell(row=fila_1, column=10).value = (num / den) if den else 0
+            ws.cell(row=fila_1, column=10).number_format = "0.00%"
+
+            # crea fila para jugador 2 NO existente (pareja: F=1, H según encierto_2)
             if dificultad == 1 and encierto_2:
-                nueva_fila = [nombre_2, 0, 0, 1, 1, 0, 1, 0, 1,0]
-            if dificultad == 1 and not encierto_2:
-                nueva_fila = [nombre_2, 0, 0, 1, 1, 0, 0, 0, 0,0]
+                nueva_fila = [nombre_2, 0, 0, 1, 0, 1, 0, 1, 0, 1]
+            elif dificultad == 1:
+                nueva_fila = [nombre_2, 0, 0, 1, 0, 1, 0, 0, 0, 0]
             elif dificultad == 2 and encierto_2:
-                nueva_fila = [nombre_2, 0, 1, 0, 1, 0, 1, 0, 1,0]
-            elif dificultad == 2 and not encierto_2:
-                nueva_fila = [nombre_2, 0, 1, 0, 1, 0, 0, 0, 0,0]
-            elif dificultad == 3 and encierto_2:
-                nueva_fila = [nombre_2, 1, 0, 0, 1, 0, 1, 0, 1,0]
-            elif dificultad == 3 and not encierto_2:
-                nueva_fila = [nombre_2, 1, 0, 0, 1, 0, 0, 0, 0,0]
-            ws.append(nueva_fila)
-        else:
-            ws.cell(row=fila_2, column=6).value += 1
-            if dificultad == 1:
-                ws.cell(row=fila_2, column=4).value += 1
+                nueva_fila = [nombre_2, 0, 1, 0, 0, 1, 0, 1, 0, 1]
             elif dificultad == 2:
-                ws.cell(row=fila_2, column=3).value += 1        
-            elif dificultad == 3:
-                ws.cell(row=fila_2, column=2).value += 1
-            if encierto_2:
-                ws.cell(row=fila_2, column=8).value += 1
-            num = ws.cell(row=fila_2, column=8).value
-            den = ws.cell(row=fila_2, column=6).value
-            ws.cell(row=fila_2, column=10).value = num / den 
-            if dificultad == 1 and encierto_1:
-                nueva_fila = [nombre_2, 0, 0, 1, 1, 0, 1, 0, 1,0]
-            if dificultad == 1 and not encierto_1:
-                nueva_fila = [nombre_2, 0, 0, 1, 1, 0, 0, 0, 0,0]
-            elif dificultad == 2 and encierto_1:
-                nueva_fila = [nombre_2, 0, 1, 0, 1, 0, 1, 0, 1,0]
-            elif dificultad == 2 and not encierto_1:
-                nueva_fila = [nombre_2, 0, 1, 0, 1, 0, 0, 0, 0,0]
-            elif dificultad == 3 and encierto_1:
-                nueva_fila = [nombre_2, 1, 0, 0, 1, 0, 1, 0, 1,0]
-            elif dificultad == 3 and not encierto_1:
-                nueva_fila = [nombre_2, 1, 0, 0, 1, 0, 0, 0, 0,0]
+                nueva_fila = [nombre_2, 0, 1, 0, 0, 1, 0, 0, 0, 0]
+            elif dificultad == 3 and encierto_2:
+                nueva_fila = [nombre_2, 1, 0, 0, 0, 1, 0, 1, 0, 1]
+            else:
+                nueva_fila = [nombre_2, 1, 0, 0, 0, 1, 0, 0, 0, 0]
             ws.append(nueva_fila)
+            fila_2 = ws.max_row  # ← imprescindible
+
+            # J para la fila nueva
+            num = ws.cell(row=fila_2, column=8).value or 0
+            den = ws.cell(row=fila_2, column=6).value or 0
+            ws.cell(row=fila_2, column=10).value = (num / den) if den else 0
+            ws.cell(row=fila_2, column=10).number_format = "0.00%"
+
+        else:
+            # actualiza jugador 2 existente  (FIX de sintaxis)
+            ws.cell(row=fila_2, column=6).value = (ws.cell(row=fila_2, column=6).value or 0) + 1
+            if dificultad == 1:
+                ws.cell(row=fila_2, column=4).value = (ws.cell(row=fila_2, column=4).value or 0) + 1
+            elif dificultad == 2:
+                ws.cell(row=fila_2, column=3).value = (ws.cell(row[fila_2, 3]).value or 0) + 1  # <- también puedes usar column=3
+            elif dificultad == 3:
+                ws.cell(row=fila_2, column=2).value = (ws.cell(row=fila_2, column=2).value or 0) + 1
+            if encierto_2:
+                ws.cell(row=fila_2, column=8).value = (ws.cell(row=fila_2, column=8).value or 0) + 1
+            # J para jugador 2
+            num = ws.cell(row=fila_2, column=8).value or 0
+            den = ws.cell(row=fila_2, column=6).value or 0
+            ws.cell(row=fila_2, column=10).value = (num / den) if den else 0
+            ws.cell(row=fila_2, column=10).number_format = "0.00%"
+
+            # crea fila para jugador 1 NO existente (pareja: F=1, H según encierto_1)
+            if dificultad == 1 and encierto_1:
+                nueva_fila = [nombre_1, 0, 0, 1, 0, 1, 0, 1, 0, 1]
+            elif dificultad == 1:
+                nueva_fila = [nombre_1, 0, 0, 1, 0, 1, 0, 0, 0, 0]
+            elif dificultad == 2 and encierto_1:
+                nueva_fila = [nombre_1, 0, 1, 0, 0, 1, 0, 1, 0, 1]
+            elif dificultad == 2:
+                nueva_fila = [nombre_1, 0, 1, 0, 0, 1, 0, 0, 0, 0]
+            elif dificultad == 3 and encierto_1:
+                nueva_fila = [nombre_1, 1, 0, 0, 0, 1, 0, 1, 0, 1]
+            else:
+                nueva_fila = [nombre_1, 1, 0, 0, 0, 1, 0, 0, 0, 0]
+            ws.append(nueva_fila)
+            fila_1 = ws.max_row  # ← imprescindible
+
+            # J para la fila nueva
+            num = ws.cell(row=fila_1, column=8).value or 0
+            den = ws.cell(row=fila_1, column=6).value or 0
+            ws.cell(row=fila_1, column=10).value = (num / den) if den else 0
+            ws.cell(row=fila_1, column=10).number_format = "0.00%"
+
+    # ---- Cap existeix: crea dues files (⚠️ 1a per nombre_1, 2a per nombre_2) ----
     else:
+        # jugador 1
         if dificultad == 1 and encierto_1:
-            nueva_fila = [nombre_2, 0, 0, 1, 1, 0, 1, 0, 1,0]
-        if dificultad == 1 and not encierto_1:
-            nueva_fila = [nombre_2, 0, 0, 1, 1, 0, 0, 0, 0,0]
+            nueva_1 = [nombre_1, 0, 0, 1, 0, 1, 0, 1, 0, 1]
+        elif dificultad == 1 and not encierto_1:
+            nueva_1 = [nombre_1, 0, 0, 1, 0, 1, 0, 0, 0, 0]
         elif dificultad == 2 and encierto_1:
-            nueva_fila = [nombre_2, 0, 1, 0, 1, 0, 1, 0, 1,0]
+            nueva_1 = [nombre_1, 0, 1, 0, 0, 1, 0, 1, 0, 1]
         elif dificultad == 2 and not encierto_1:
-            nueva_fila = [nombre_2, 0, 1, 0, 1, 0, 0, 0, 0,0]
+            nueva_1 = [nombre_1, 0, 1, 0, 0, 1, 0, 0, 0, 0]
         elif dificultad == 3 and encierto_1:
-            nueva_fila = [nombre_2, 1, 0, 0, 1, 0, 1, 0, 1,0]
-        elif dificultad == 3 and not encierto_1:
-            nueva_fila = [nombre_2, 1, 0, 0, 1, 0, 0, 0, 0,0]
-        ws.append(nueva_fila)
+            nueva_1 = [nombre_1, 1, 0, 0, 0, 1, 0, 1, 0, 1]
+        else:
+            nueva_1 = [nombre_1, 1, 0, 0, 0, 1, 0, 0, 0, 0]
+        ws.append(nueva_1)
+        fila_1 = ws.max_row
+
+        # jugador 2
         if dificultad == 1 and encierto_2:
-            nueva_fila = [nombre_2, 0, 0, 1, 1, 0, 1, 0, 1,0]
-        if dificultad == 1 and not encierto_2:
-            nueva_fila = [nombre_2, 0, 0, 1, 1, 0, 0, 0, 0,0]
+            nueva_2 = [nombre_2, 0, 0, 1, 0, 1, 0, 1, 0, 1]
+        elif dificultad == 1 and not encierto_2:
+            nueva_2 = [nombre_2, 0, 0, 1, 0, 1, 0, 0, 0, 0]
         elif dificultad == 2 and encierto_2:
-            nueva_fila = [nombre_2, 0, 1, 0, 1, 0, 1, 0, 1,0]
+            nueva_2 = [nombre_2, 0, 1, 0, 0, 1, 0, 1, 0, 1]
         elif dificultad == 2 and not encierto_2:
-            nueva_fila = [nombre_2, 0, 1, 0, 1, 0, 0, 0, 0,0]
+            nueva_2 = [nombre_2, 0, 1, 0, 0, 1, 0, 0, 0, 0]
         elif dificultad == 3 and encierto_2:
-            nueva_fila = [nombre_2, 1, 0, 0, 1, 0, 1, 0, 1,0]
-        elif dificultad == 3 and not encierto_2:
-            nueva_fila = [nombre_2, 1, 0, 0, 1, 0, 0, 0, 0,0]
-        ws.append(nueva_fila)
-    ws.cell(row=fila_1, column=9).number_format = "0.00%"
-    ws.cell(row=fila_1, column=10).number_format = "0.00%"  
-    ws.cell(row=fila_2, column=9).number_format = "0.00%"
-    ws.cell(row=fila_2, column=10).number_format = "0.00%" 
+            nueva_2 = [nombre_2, 1, 0, 0, 0, 1, 0, 1, 0, 1]
+        else:
+            nueva_2 = [nombre_2, 1, 0, 0, 0, 1, 0, 0, 0, 0]
+        ws.append(nueva_2)
+        fila_2 = ws.max_row
+
+    # Format percentatges (si les files són vàlides)
+    if fila_1 > 0:
+        ws.cell(row=fila_1, column=9).number_format = "0.00%"
+        ws.cell(row=fila_1, column=10).number_format = "0.00%"
+    if fila_2 > 0:
+        ws.cell(row=fila_2, column=9).number_format = "0.00%"
+        ws.cell(row=fila_2, column=10).number_format = "0.00%"
+
     wb.save(archivo)
 
 
