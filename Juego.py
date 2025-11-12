@@ -17,7 +17,7 @@ def menu():
     while True:
         print("\n--- MENÚ PRINCIPAL ---")
         print("1. Pulsa 1 si quieres jugar en modo solitario.")
-        print("2. Pulsa 1 si queréis jugar en modo pareja.")
+        print("2. Pulsa 2 si queréis jugar en modo pareja.")
         print("3. Pulsa 3 para ver las estadísticas del juego")
         print("4. Pulsa 4 para salir.")
 
