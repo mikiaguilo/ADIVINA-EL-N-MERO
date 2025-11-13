@@ -13,7 +13,7 @@ print(
 "dependiendo de los diferentes modos de juego."
 )
 def menu():
-    Funciones.crear_excel()
+    Funciones.crear_excel()  #Llama a la función crear_excel() de módulo 'Funciones', la cual crea un excel si este no está ya creado.
     while True:
         print("\n--- MENÚ PRINCIPAL ---")
         print("1. Pulsa 1 si quieres jugar en modo solitario.")
@@ -24,13 +24,13 @@ def menu():
         opcion = int(input("Elige una opción: "))
 
         if opcion == 1:
-            Funciones.solitario()
+            Funciones.solitario()   #Si se selecciona la opción 1, llma a la función solitario() del módulo 'Funciones'.
         elif opcion == 2:
-            Funciones.pareja()
+            Funciones.pareja()  #Si se selecciona la opción 2, llma a la función pareja() del módulo 'Funciones'.
         elif opcion == 3:
-            Funciones.estadisticas()
+            Funciones.estadisticas()    #Si se selecciona la opción 3, llma a la función estadisticas() del módulo 'Funciones'.
         elif opcion == 4:
-            print("\n👋 ¡Gracias por jugar!")
+            print("\n👋 ¡Gracias por jugar!")   #Si se selecciona la opción 4, se acaba el juego.
             break
         else:
             print("❌ Opción inválida, intenta de nuevo.")

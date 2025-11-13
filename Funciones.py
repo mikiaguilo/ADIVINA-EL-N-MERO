@@ -154,6 +154,7 @@ def crear_excel():
     columnas_pareja = [
         "Jugador 1",
         "Jugador 2",
+        "Dificultad",
         "Ganador/a",
         "Nº de intentos Jugador 1",
         "Nº de intentos Jugador 2",
@@ -267,7 +268,7 @@ def resultado_jugadores_pareja(nombre_1,nombre_2,dificultad, encierto_1, enciert
             else:
                 nueva_fila = [nombre_2, 1, 0, 0, 0, 1, 0, 0, 0, 0]
             ws.append(nueva_fila)
-            fila_2 = ws.max_row  # ← imprescindible
+            fila_2 = ws.max_row  
 
             # J para la fila nueva
             num = ws.cell(row=fila_2, column=8).value or 0
@@ -281,7 +282,7 @@ def resultado_jugadores_pareja(nombre_1,nombre_2,dificultad, encierto_1, enciert
             if dificultad == 1:
                 ws.cell(row=fila_2, column=4).value = (ws.cell(row=fila_2, column=4).value or 0) + 1
             elif dificultad == 2:
-                ws.cell(row=fila_2, column=3).value = (ws.cell(row[fila_2, 3]).value or 0) + 1  # <- también puedes usar column=3
+                ws.cell(row=fila_2, column=3).value = (ws.cell(row=fila_2, column = 3).value or 0) + 1 
             elif dificultad == 3:
                 ws.cell(row=fila_2, column=2).value = (ws.cell(row=fila_2, column=2).value or 0) + 1
             if encierto_2:
@@ -292,7 +293,7 @@ def resultado_jugadores_pareja(nombre_1,nombre_2,dificultad, encierto_1, enciert
             ws.cell(row=fila_2, column=10).value = (num / den) if den else 0
             ws.cell(row=fila_2, column=10).number_format = "0.00%"
 
-            # crea fila para jugador 1 NO existente (pareja: F=1, H según encierto_1)
+            # crea fila para jugador 1 NO existente
             if dificultad == 1 and encierto_1:
                 nueva_fila = [nombre_1, 0, 0, 1, 0, 1, 0, 1, 0, 1]
             elif dificultad == 1:
@@ -306,7 +307,7 @@ def resultado_jugadores_pareja(nombre_1,nombre_2,dificultad, encierto_1, enciert
             else:
                 nueva_fila = [nombre_1, 1, 0, 0, 0, 1, 0, 0, 0, 0]
             ws.append(nueva_fila)
-            fila_1 = ws.max_row  # ← imprescindible
+            fila_1 = ws.max_row  
 
             # J para la fila nueva
             num = ws.cell(row=fila_1, column=8).value or 0
@@ -314,7 +315,7 @@ def resultado_jugadores_pareja(nombre_1,nombre_2,dificultad, encierto_1, enciert
             ws.cell(row=fila_1, column=10).value = (num / den) if den else 0
             ws.cell(row=fila_1, column=10).number_format = "0.00%"
 
-    # ---- Cap existeix: crea dues files (⚠️ 1a per nombre_1, 2a per nombre_2) ----
+    # ---- Ninguno de los jugadores existe: crea dos filas (1a para nombre_1, 2a para nombre_2) ----
     else:
         # jugador 1
         if dificultad == 1 and encierto_1:
@@ -348,7 +349,7 @@ def resultado_jugadores_pareja(nombre_1,nombre_2,dificultad, encierto_1, enciert
         ws.append(nueva_2)
         fila_2 = ws.max_row
 
-    # Format percentatges (si les files són vàlides)
+    # Formato percentage para las dos últimas filas 
     if fila_1 > 0:
         ws.cell(row=fila_1, column=9).number_format = "0.00%"
         ws.cell(row=fila_1, column=10).number_format = "0.00%"
@@ -360,54 +361,54 @@ def resultado_jugadores_pareja(nombre_1,nombre_2,dificultad, encierto_1, enciert
 
 
 
-
+#Esta función define el juego en modo solitario.
 def solitario():
     path='Resultados de adivina el número.xlsx'
-    nombre = pedir_nombre_solitario()
-    wb = load_workbook(path)
-    niveles={1:'Fácil', 2:'Intermedio',3:'Difícil'}
-    resultado={True:'Victoria', False:'Derrota'}
-    numero_intentos,dificultad = pedir_nivel_solitario(nombre)
+    nombre = pedir_nombre_solitario()    #Aquí se pide el nombre del jugador
+    wb = load_workbook(path)     #Se carga el excel
+    niveles={1:'Fácil', 2:'Intermedio',3:'Difícil'}    #Diccionario que será necesario para luego actualizar la hoja del excel "Solitario"
+    resultado={True:'Victoria', False:'Derrota'}    #Diccionario que será necesario para luego actualizar la hoja del excel "Solitario"
+    numero_intentos,dificultad = pedir_nivel_solitario(nombre)    #Se pide el nivel al que se quiere jugar
     print(f"\n🔢 El juego empieza con {numero_intentos} intentos.")
     encierto = False  #Esta variable nos indica que no se ha encontrado el num secreto. Si se encuentra, encierto pasara a ser True y se romperá el bucle siguiente.
     numero_elegido = random.randint(1,1001) #Se genera un número aleatorio entre el 1 y el 1000.
     i = 0  #Es el contador.
-    while i in range(numero_intentos) and encierto == False:
+    while i in range(numero_intentos) and encierto == False:     #Aquí se comprueba si el intento es mayor, menor o igual que el número secreto.
         intento=int(input(f'Tu intento número {i+1} es:'))
         if intento == numero_elegido:
-            os.system("afplay 'success-fanfare-trumpets-6185.mp3'")
+            os.system("afplay 'success-fanfare-trumpets-6185.mp3'")   #Sonido de ganador/a
             encierto=True
             print(f'Has acertado en tu intento {i+1}! El número secreto era {numero_elegido}!')
         if intento<numero_elegido:
-            os.system("afplay 'mixkit-wrong-answer-bass-buzzer-948.wav'")
+            os.system("afplay 'mixkit-wrong-answer-bass-buzzer-948.wav'")   #Sonido de error
             print(f'El número {intento} es menor que el número secreto... Te quedan {numero_intentos-(i+1)} intentos!')
             i += 1
         if intento>numero_elegido:
-            os.system("afplay 'mixkit-wrong-answer-bass-buzzer-948.wav'")
+            os.system("afplay 'mixkit-wrong-answer-bass-buzzer-948.wav'")   #Sonido de error
             print(f'El número {intento} es mayor que el número secreto... Te quedan {numero_intentos-(i+1)} intentos!')
             i += 1
     if encierto == False:
-        print(f"Lo siento, no has adivinado el número secreto que era {numero_elegido}... Inténtalo otra vez!")
+        print(f"Lo siento, no has adivinado el número secreto que era {numero_elegido}... Inténtalo otra vez!")   #Si no has ganado, se hace este print.
     ws=wb['Solitario']
-    nueva_fila=[nombre,niveles[dificultad],resultado[encierto],i,numero_elegido,intento]
+    nueva_fila=[nombre,niveles[dificultad],resultado[encierto],i,numero_elegido,intento]    #Actualizamos la hoja del excel "Solitario" con esta nueva fila.
     ws.append(nueva_fila)
     wb.save(path)
-    resultado_jugadores_solitario(nombre,dificultad, encierto)
+    resultado_jugadores_solitario(nombre,dificultad, encierto)   #Aquí se actualiza la hoja de "Resultado jugadores".
 
+#Esta función define el juego en modo solitario.
 def pareja():
     path='Resultados de adivina el número.xlsx'
-    wb = load_workbook(path)
-    niveles = {1:'Fácil', 2:'Intermedio',3:'Difícil'}
-    resultado = {True:'Victoria', False:'Derrota'}
-    nombre_1, nombre_2 = pedir_nombre_parejas()
-    numero_intentos, dificultad = pedir_nivel_pareja(nombre_1, nombre_2)
+    wb = load_workbook(path)     #Aquí se carga el excel
+    niveles = {1:'Fácil', 2:'Intermedio',3:'Difícil'}   #Diccionario que será necesario para luego actualizar la hoja del excel "Pareja"
+    nombre_1, nombre_2 = pedir_nombre_parejas()   #Se pide los nombres de los jugadores.
+    numero_intentos, dificultad = pedir_nivel_pareja(nombre_1, nombre_2)    #Se pide la dificultad del juego a los jugadores.
     print(f"\n🔢 El juego empieza con {numero_intentos} intentos.")
-    encierto_1 = False  #Esta variable nos indica que no se ha encontrado el num secreto. Si se encuentra, encierto pasara a ser True y se romperá el bucle siguiente.
-    encierto_2 = False  
+    encierto_1 = False  #Esta variable nos indica que el jugador 1 no se ha encontrado el num secreto. Si se encuentra, encierto pasara a ser True y se romperá el bucle siguiente.
+    encierto_2 = False  #Esta variable nos indica que el jugador 2 no se ha encontrado el num secreto. Si se encuentra, encierto pasara a ser True y se romperá el bucle siguiente.
     numero_elegido = random.randint(1,1001) #Se genera un número aleatorio entre el 1 y el 1000.
     i = 0  #Es el contador del primer jugador.
     j=  0  #Es el contador del segundo jugador
-    while j in range(numero_intentos) and (not encierto_1 and not encierto_2):
+    while j in range(numero_intentos) and (not encierto_1 and not encierto_2):    #Aquí se comprueba si los intentos son mayores, menores o iguales que el número secreto.
         intento_1=int(getpass(f'El intento número {i+ 1} de {nombre_1} es:'))
         if intento_1 == numero_elegido:
             i += 1
@@ -446,11 +447,12 @@ def pareja():
         print(f"Lo siento, no has adivinado el número secreto, que era {numero_elegido}... Inténtalo otra vez!")
         ganador = '-'
     ws=wb['Pareja']
-    nueva_fila=[nombre_1,nombre_2,ganador,i,j,numero_elegido,f'{intento_1}-{intento_2}']
+    nueva_fila=[nombre_1,nombre_2,niveles[dificultad],ganador,i,j,numero_elegido,f'{intento_1}-{intento_2}']   #Actualizamos la hoja del excel "Pareja" a partir de esta fila.
     ws.append(nueva_fila)
     wb.save(path)
-    resultado_jugadores_pareja(nombre_1,nombre_2,dificultad, encierto_1, encierto_2)
-def estadisticas():
+    resultado_jugadores_pareja(nombre_1,nombre_2,dificultad, encierto_1, encierto_2)   #Aquí se actualiza la hoja de "Resultado jugadores".
+# Esta función nos enseña las estadísticas de el juego.
+def estadisticas():    
     archivo = "Resultados de adivina el número.xlsx"
 
     dfs = pd.read_excel(archivo, sheet_name=["Solitario", "Pareja", "Resultado jugadores"])
